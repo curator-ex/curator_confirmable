@@ -5,6 +5,20 @@ defmodule CuratorConfirmable.Schema do
   defmacro __using__(_opts \\ []) do
     quote do
       import unquote(__MODULE__)
+
+      def confirmable_changeset(user, params \\ %{}) do
+        user
+        |> cast(params, curator_confirmable_fields)
+      end
+
+      def curator_confirmable_fields do
+        ~w(confirmed_at confirmation_token confirmation_sent_at)a
+      end
+
+      defoverridable [
+        {:confirmable_changeset, 2},
+        {:curator_confirmable_fields, 0},
+      ]
     end
   end
 
