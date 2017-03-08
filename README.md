@@ -71,6 +71,12 @@ NOTE: You'll need to configure an email adapter.
   5. Update `lib/<otp_app>/curator_hooks.ex`
 
     ```elixir
+    def before_sign_in(user, type) do
+      with :ok <- CuratorConfirmable.Hooks.before_sign_in(user, type) do
+        :ok
+      end
+    end
+
     def after_extension(conn, :registration, user) do
       conn
       |> put_flash(:info, "Account was successfully created. Check your email for a confirmation link")
@@ -139,5 +145,19 @@ NOTE: You'll need to configure an email adapter.
 
       assert Phoenix.Controller.get_flash(conn, :danger) == "Not Confirmed"
       assert Phoenix.ConnTest.redirected_to(conn) == session_path(conn, :new)
+    end
+    ```
+
+  8. Update `test/controllers/session_controller_test.exs`
+
+    ```elixir
+    test "does not create resource and renders errors when user is unconfirmed", %{unauthenticated_conn: conn, authorized_user: user} do
+      Ecto.Changeset.change(user, confirmed_at: nil)
+      |> PhoenixCurator.Repo.update!
+
+      conn = post conn, session_path(conn, :create), session: @valid_attrs
+
+      assert Phoenix.Controller.get_flash(conn, :danger) == "Not Confirmed"
+      assert html_response(conn, 200) =~ "Login"
     end
     ```
