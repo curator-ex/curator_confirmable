@@ -38,7 +38,7 @@ defmodule CuratorConfirmable.Mixfile do
 
   defp deps do
     [
-      {:curator, github: "curator-ex/curator"},
+      {:curator, "~> 0.1.0"},
       {:ecto, "~> 2.0"},
       {:plug, "~> 1.2"},
       {:postgrex, ">= 0.11.1", optional: true},
